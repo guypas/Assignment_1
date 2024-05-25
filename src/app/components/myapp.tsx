@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import PageButton from './pageButton';
 import NavigationButton from './navigationButton';
-// import notesData from './notes.json';
 
 const numOfPages: number = 100;
 const notesPerPage: number = 10;
@@ -20,10 +19,6 @@ interface Note {
   content: string;
 }
 
-// interface NotesData {
-//   notes: Note[];
-// }
-
 const Myapp: React.FC = () => {
   const initialArray: boolean[] = Array(numOfPages).fill(false).map((value, index) => index < 5);
   const [buttonsArray, setButtonsArray] = useState<boolean[]>(initialArray);
@@ -31,10 +26,11 @@ const Myapp: React.FC = () => {
   const [currentNotes, setCurrentNotes] = useState<Note[]>([]);
 
   useEffect(() => {
-    // Fetch the initial note when the component mounts
+    // Fetch the initial note when the component mounts(first render)
     fetchNotesForPage(1);
   }, []);
 
+  // every time the user press a button this function called to fetch 10 notes from the server
   const fetchNotesForPage = async (page: number) => {
     try {
       const start: number = (page - 1) * notesPerPage;
@@ -42,7 +38,6 @@ const Myapp: React.FC = () => {
       const response = await fetch(`http://localhost:3001/notes?_start=${start}&_end=${end}`);
   
       if (!response.ok) {
-        // If response status is not in the range 200-299
         throw new Error(`HTTP error! status: ${response.status}`);
       }
   
@@ -50,10 +45,10 @@ const Myapp: React.FC = () => {
       setCurrentNotes(notes);
     } catch (error) {
       console.error('Error fetching notes:', error);
-      // Optionally, you can set an error state here to display an error message to the user
     }
   };
 
+  // hanle click on page button and update the relevant states
   const handleButtonClick = (index: number) => {
     if (numOfPages > 5) {
       const tempArray = new Array<boolean>(numOfPages).fill(false);
@@ -87,7 +82,7 @@ const Myapp: React.FC = () => {
       setButtonsArray(tempArray);
     }
     setCurrentPage(1);
-    fetchNotesForPage(1); // Fetch the first note
+    fetchNotesForPage(1); 
   };
 
   const handlePreviousClick = () => {
@@ -111,7 +106,7 @@ const Myapp: React.FC = () => {
       setButtonsArray(tempArray);
     }
     setCurrentPage(numOfPages);
-    fetchNotesForPage(numOfPages); // Fetch the last note
+    fetchNotesForPage(numOfPages); 
   };
 
   return (
@@ -142,11 +137,13 @@ const Myapp: React.FC = () => {
         {currentNotes.length > 0 ? (
           currentNotes.map(note => (
             <div key={note.id}>
-              <h1>{note.content}</h1>
+              <h1>{note.title}</h1>
+              <p><strong>Author:</strong> {note.author.name} ({note.author.email})</p>
+              <p>{note.content}</p>
             </div>
           ))
         ) : (
-          <h1>No content</h1>
+          <h1>{null}</h1>
         )}
       </div>
     </div>
