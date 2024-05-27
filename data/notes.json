@@ -224,51 +224,6 @@
         "email": "mail_25@gmail.com"
       },
       "content": "Content for note 25"
-    },
-    {
-      "id": 26,
-      "title": "Note 26",
-      "author": {
-        "name": "Author 26",
-        "email": "mail_26@gmail.com"
-      },
-      "content": "Content for note 26"
-    },
-    {
-      "id": 27,
-      "title": "Note 27",
-      "author": {
-        "name": "Author 27",
-        "email": "mail_27@gmail.com"
-      },
-      "content": "Content for note 27"
-    },
-    {
-      "id": 28,
-      "title": "Note 28",
-      "author": {
-        "name": "Author 28",
-        "email": "mail_28@gmail.com"
-      },
-      "content": "Content for note 28"
-    },
-    {
-      "id": 29,
-      "title": "Note 29",
-      "author": {
-        "name": "Author 29",
-        "email": "mail_29@gmail.com"
-      },
-      "content": "Content for note 29"
-    },
-    {
-      "id": 30,
-      "title": "Note 30",
-      "author": {
-        "name": "Author 30",
-        "email": "mail_30@gmail.com"
-      },
-      "content": "Content for note 30"
     }
   ]
 }

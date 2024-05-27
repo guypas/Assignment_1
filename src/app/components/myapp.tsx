@@ -1,11 +1,13 @@
 "use client";  
 
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import PageButton from './pageButton';
 import NavigationButton from './navigationButton';
 
 let numOfPages: number = 0;
-const notesPerPage: number = 10;
+const POSTS_PER_PAGE: number = 10;
+const NOTES_URL = 'http://localhost:3001/notes';
 
 interface Author {
   name: string;
@@ -23,54 +25,47 @@ const Myapp: React.FC = () => {
   
   const [buttonsArray, setButtonsArray] = useState<boolean[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  //console.log('current page ' + currentPage);
   const [currentNotes, setCurrentNotes] = useState<Note[]>([]);
-  const [totalNotes, setTotalNotes] = useState<number>(0);
+  const [totalNotes, setTotalNotes] = useState<number>(3);
+  //console.log('total notes ' + totalNotes);
 
   useEffect(() => {
-    const fetchTotalNotes = async () => {
+    const fetchNotesForPage = async (page: number) => {
       try {
-        const response = await fetch('http://localhost:3001/notes');
-        const notes = await response.json();
-        setTotalNotes(notes.length);
-
-        // Initially fetch the first page
-        fetchNotesForPage(1);
+        const response = await axios.get(NOTES_URL, {
+          params: {
+            _page: page,
+            _limit: POSTS_PER_PAGE
+          }
+        });
+        
+        if (response.status !== 200) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        setCurrentNotes(response.data);
+        const totalNotesCount = parseInt(response.headers['x-total-count'], 10);
+        if(totalNotesCount != totalNotes){
+          numOfPages = Math.ceil(totalNotesCount / POSTS_PER_PAGE);
+          console.log(numOfPages);
+          if(numOfPages < currentPage){
+            handleButtonClick(numOfPages - 1);
+           }
+          else{
+           handleButtonClick(currentPage - 1);
+          }
+          setTotalNotes(totalNotesCount);
+        }
       } catch (error) {
-        console.error('Error fetching total notes:', error);
+        console.error('Error fetching notes:', error);
       }
     };
 
-    fetchTotalNotes();
-  }, []);
-
-  useEffect(() => {
-    numOfPages = Math.ceil(totalNotes / notesPerPage);
-    const initialArray: boolean[] = Array(numOfPages).fill(false).map((value, index) => index < 5);
-    setButtonsArray(initialArray);
-  }, [totalNotes]);
-
-  useEffect(() => {
     fetchNotesForPage(currentPage);
   }, [currentPage]);
 
-  // every time the user press a button this function called to fetch 10 notes from the server
-  const fetchNotesForPage = async (page: number) => {
-    try {
-      const start: number = (page - 1) * notesPerPage;
-      const end: number = page * notesPerPage;
-      const response = await fetch(`http://localhost:3001/notes?_start=${start}&_end=${end}`);
   
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const notes: Note[] = await response.json();
-      setCurrentNotes(notes);
-    } catch (error) {
-      console.error('Error fetching notes:', error);
-    }
-  };
-
   // hanle click on page button and update the relevant states
   const handleButtonClick = (index: number) => {
     if (numOfPages > 5) {
@@ -92,8 +87,11 @@ const Myapp: React.FC = () => {
       }
       setButtonsArray(tempArray);
     }
+    else{
+      const tempArray = new Array<boolean>(numOfPages).fill(true);
+      setButtonsArray(tempArray);
+    }
     setCurrentPage(index + 1);
-    //fetchNotesForPage(index + 1); // Fetch the note for the selected page
   };
 
   const handleFirstClick = () => {
@@ -105,7 +103,6 @@ const Myapp: React.FC = () => {
       setButtonsArray(tempArray);
     }
     setCurrentPage(1);
-    //fetchNotesForPage(1); 
   };
 
   const handlePreviousClick = () => {
@@ -129,7 +126,6 @@ const Myapp: React.FC = () => {
       setButtonsArray(tempArray);
     }
     setCurrentPage(numOfPages);
-    //fetchNotesForPage(numOfPages); 
   };
 
   return (
