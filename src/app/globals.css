@@ -46,3 +46,7 @@
   justify-content: center; /* Center items vertically */
   
 }
+
+.app {
+  background-color: blue;
+}

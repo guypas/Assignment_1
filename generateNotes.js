@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
-function generateNotes(N) {
+// create notes and put it inside json format and return it
+const generateNotes = (numOfNotes) => {
   const notes = [];
 
-  for (let i = 1; i <= N; i++) {
+  for (let i = 1; i <= numOfNotes; i++) {
     notes.push({
       id: i,
       title: `Note ${i}`,
@@ -19,7 +20,8 @@ function generateNotes(N) {
   return { notes };
 }
 
-function saveNotesToFile(notes, filePath) {
+// save the notes inside the notes.json
+const saveNotesToFile = (notes, filePath) => {
   fs.writeFile(filePath, JSON.stringify(notes, null, 2), (err) => {
     if (err) {
       console.error('Error writing to file', err);
@@ -30,14 +32,15 @@ function saveNotesToFile(notes, filePath) {
 }
 
 const args = process.argv.slice(2);
-const N = parseInt(args[0], 10);
+const numOfNotes = parseInt(args[0], 10);
 
-if (isNaN(N)) {
-  console.error('Please provide a valid number for N');
+// check valid input
+if (isNaN(numOfNotes)) {
+  console.error('Please provide a valid number');
   process.exit(1);
 }
 
-const notes = generateNotes(N);
+const notes = generateNotes(numOfNotes);
 const filePath = path.join(__dirname, 'data', 'notes.json');
 
 // Ensure the data directory exists

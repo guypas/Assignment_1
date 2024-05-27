@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import PageButton from './pageButton';
 import NavigationButton from './navigationButton';
 
-const numOfPages: number = 100;
+let numOfPages: number = 0;
 const notesPerPage: number = 10;
 
 interface Author {
@@ -20,15 +20,38 @@ interface Note {
 }
 
 const Myapp: React.FC = () => {
-  const initialArray: boolean[] = Array(numOfPages).fill(false).map((value, index) => index < 5);
-  const [buttonsArray, setButtonsArray] = useState<boolean[]>(initialArray);
+  
+  const [buttonsArray, setButtonsArray] = useState<boolean[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [currentNotes, setCurrentNotes] = useState<Note[]>([]);
+  const [totalNotes, setTotalNotes] = useState<number>(0);
 
   useEffect(() => {
-    // Fetch the initial note when the component mounts(first render)
-    fetchNotesForPage(1);
+    const fetchTotalNotes = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/notes');
+        const notes = await response.json();
+        setTotalNotes(notes.length);
+
+        // Initially fetch the first page
+        fetchNotesForPage(1);
+      } catch (error) {
+        console.error('Error fetching total notes:', error);
+      }
+    };
+
+    fetchTotalNotes();
   }, []);
+
+  useEffect(() => {
+    numOfPages = Math.ceil(totalNotes / notesPerPage);
+    const initialArray: boolean[] = Array(numOfPages).fill(false).map((value, index) => index < 5);
+    setButtonsArray(initialArray);
+  }, [totalNotes]);
+
+  useEffect(() => {
+    fetchNotesForPage(currentPage);
+  }, [currentPage]);
 
   // every time the user press a button this function called to fetch 10 notes from the server
   const fetchNotesForPage = async (page: number) => {
@@ -70,7 +93,7 @@ const Myapp: React.FC = () => {
       setButtonsArray(tempArray);
     }
     setCurrentPage(index + 1);
-    fetchNotesForPage(index + 1); // Fetch the note for the selected page
+    //fetchNotesForPage(index + 1); // Fetch the note for the selected page
   };
 
   const handleFirstClick = () => {
@@ -82,7 +105,7 @@ const Myapp: React.FC = () => {
       setButtonsArray(tempArray);
     }
     setCurrentPage(1);
-    fetchNotesForPage(1); 
+    //fetchNotesForPage(1); 
   };
 
   const handlePreviousClick = () => {
@@ -106,11 +129,11 @@ const Myapp: React.FC = () => {
       setButtonsArray(tempArray);
     }
     setCurrentPage(numOfPages);
-    fetchNotesForPage(numOfPages); 
+    //fetchNotesForPage(numOfPages); 
   };
 
   return (
-    <div>
+    <div className='app'>
       <div className="pagination">
         <NavigationButton value='first' disable={currentPage === 1} onNavigationClick={handleFirstClick} />
         <NavigationButton value='previous' disable={currentPage === 1} onNavigationClick={handlePreviousClick} />
