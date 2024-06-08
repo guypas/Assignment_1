@@ -25,10 +25,8 @@ const Myapp: React.FC = () => {
   
   const [buttonsArray, setButtonsArray] = useState<boolean[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  //console.log('current page ' + currentPage);
   const [currentNotes, setCurrentNotes] = useState<Note[]>([]);
   const [totalNotes, setTotalNotes] = useState<number>(3);
-  //console.log('total notes ' + totalNotes);
 
   useEffect(() => {
     const fetchNotesForPage = async (page: number) => {
@@ -48,7 +46,6 @@ const Myapp: React.FC = () => {
         const totalNotesCount = parseInt(response.headers['x-total-count'], 10);
         if(totalNotesCount != totalNotes){
           numOfPages = Math.ceil(totalNotesCount / POSTS_PER_PAGE);
-          console.log(numOfPages);
           if(numOfPages < currentPage){
             handleButtonClick(numOfPages - 1);
            }
@@ -155,7 +152,7 @@ const Myapp: React.FC = () => {
       <div className='text'>
         {currentNotes.length > 0 ? (
           currentNotes.map(note => (
-            <div key={note.id}>
+            <div className='post' key={note.id} id ={`${note.id}`}>
               <h1>{note.title}</h1>
               <p><strong>Author:</strong> {note.author.name} ({note.author.email})</p>
               <p>{note.content}</p>

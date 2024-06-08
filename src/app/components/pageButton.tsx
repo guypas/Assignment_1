@@ -12,7 +12,7 @@ const PageButton: React.FC<PageButtonProps> = ({ value, showButton, onButtonClic
 
   return (
     <div className={className}>
-      <button className={'page-' + value} onClick={onButtonClick}>
+      <button name={'page-' + value} onClick={onButtonClick}>
         {value}
       </button>
     </div>

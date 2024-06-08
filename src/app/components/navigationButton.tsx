@@ -9,7 +9,7 @@ interface NavigationButtonProps {
 const NavigationButton: React.FC<NavigationButtonProps> = ({ value, disable, onNavigationClick}) => {
   return (
     <div className="navigation">
-      <button className={value} onClick={onNavigationClick} disabled={disable}>
+      <button name={value} onClick={onNavigationClick} disabled={disable}>
         {value}
       </button>
     </div>
