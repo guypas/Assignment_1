@@ -23,7 +23,7 @@ interface Note {
 
 const Myapp: React.FC = () => {
   
-  const [buttonsArray, setButtonsArray] = useState<boolean[]>([]);
+  const [buttonsArray, setButtonsArray] = useState<boolean[]>([true , true , true,true,true]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [currentNotes, setCurrentNotes] = useState<Note[]>([]);
   const [totalNotes, setTotalNotes] = useState<number>(3);
