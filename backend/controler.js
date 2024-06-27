@@ -59,17 +59,16 @@ app.post('/', (request, response) => {
 
   // Update note
   app.put('/:id', (request, response, next) => {
+    const noteId = request.params.id
     const body = request.body
   
     const note = {
       content: body.content,
     }
   
-    Note.findByIdAndUpdate(request.params.id, note, { new: true })
+    Note.findOneAndUpdate({id: noteId}, note, { new: true })
       .then(updatedNote => {
         response.json(updatedNote)
       })
       .catch(error => next(error))
   })
-
-
