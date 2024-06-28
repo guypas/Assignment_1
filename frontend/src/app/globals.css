@@ -47,6 +47,28 @@
   
 }
 
-/* .app {
-  background-color: blue;
-} */
+.light {
+  background-color: white;
+  color: black;
+}
+
+.dark {
+  background-color: black;
+  color: white;
+}
+
+.dark .pagination button {
+  background-color: #333;
+  color: white;
+  border: 1px solid #444;
+}
+
+.dark .pagination button:hover {
+  background-color: #444;
+}
+
+.dark .note {
+  background-color: #333;
+  color: white;
+}
+

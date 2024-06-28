@@ -5,7 +5,7 @@ import axios from 'axios';
 import PageButton from './pageButton';
 import NavigationButton from './navigationButton';
 
-let numOfPages: number = 10; //changed from 0
+let numOfPages: number = 0; 
 const POSTS_PER_PAGE: number = 10;
 const NOTES_URL = 'http://localhost:3001/notes';
 
@@ -23,44 +23,56 @@ interface Note {
 
 const Myapp: React.FC = () => {
   
-  const [buttonsArray, setButtonsArray] = useState<boolean[]>([true , true , true,true,true]);
+  const [buttonsArray, setButtonsArray] = useState<boolean[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [currentNotes, setCurrentNotes] = useState<Note[]>([]);
   const [totalNotes, setTotalNotes] = useState<number>(3);
 
+  const [darkMode, setDarkMode] = useState<boolean>(false); // State for dark mode
+
+  const [editNoteIndex, setEditNoteIndex] = useState<number>(-1); // State to track which note is being edited
+  const [editedContent, setEditedContent] = useState<string>(''); // State to hold edited content
+
+  const [addContent, setAddContent] = useState<string>('');
+  const [addpress, setAddPress] = useState<boolean>(false);
+
+
   useEffect(() => {
-    const fetchNotesForPage = async (page: number) => {
-      try {
-        const response = await axios.get(NOTES_URL, {
-          params: {
-            _page: page,
-            _limit: POSTS_PER_PAGE
-          }
-        });
-        
-        if (response.status !== 200) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        setCurrentNotes(response.data);
-        const totalNotesCount = 4;
-        if(totalNotesCount != totalNotes){
-          numOfPages = Math.ceil(totalNotesCount / POSTS_PER_PAGE);
-          if(numOfPages < currentPage){
-            handleButtonClick(numOfPages - 1);
-           }
-          else{
-           handleButtonClick(currentPage - 1);
-          }
-          setTotalNotes(totalNotesCount);
-        }
-      } catch (error) {
-        console.error('Error fetching notes:', error);
-      }
-    };
+    
 
     fetchNotesForPage(currentPage);
   }, [currentPage]);
+
+  const fetchNotesForPage = async (page: number) => {
+    try {
+      const response = await axios.get(NOTES_URL, {
+        params: {
+          _page: page,
+          _limit: POSTS_PER_PAGE
+        }
+      });
+      
+      if (response.status !== 200) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const { notes, totalNotesCount } = response.data;
+      console.log("total notes count:" , totalNotesCount)
+
+      setCurrentNotes(notes);
+      if(totalNotesCount != totalNotes){
+        numOfPages = Math.ceil(totalNotesCount / POSTS_PER_PAGE);
+        if(numOfPages < currentPage){
+          handleButtonClick(numOfPages - 1);
+         }
+        else{
+         handleButtonClick(currentPage - 1);
+        }
+        setTotalNotes(totalNotesCount);
+      }
+    } catch (error) {
+      console.error('Error fetching notes:', error);
+    }
+  };
 
   
   // hanle click on page button and update the relevant states
@@ -125,8 +137,127 @@ const Myapp: React.FC = () => {
     setCurrentPage(numOfPages);
   };
 
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
+  const handleEditClick = (index: number, initialContent: string) => {
+    setEditNoteIndex(index);
+    setEditedContent(initialContent);
+  };
+
+  const handleCancelEdit = () => {
+    setEditNoteIndex(-1);
+    setEditedContent('');
+  };
+
+  const handleEditContentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setEditedContent(event.target.value);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const updatedNote = {
+        content: editedContent
+      };
+
+      const indexTotal = (currentPage - 1) * 10 + editNoteIndex
+
+      const response = await axios.put(`${NOTES_URL}/${indexTotal}`, updatedNote);
+      // Assuming backend returns the updated note
+      if (response.data) {
+        // Update currentNotes with the updated note
+        const updatedNotes = currentNotes.map((note,index) => {
+          if (index === editNoteIndex) {
+            return {
+              ...note,
+              content: response.data.content
+            };
+          }
+          return note;
+        });
+        setCurrentNotes(updatedNotes);
+        setEditNoteIndex(-1);
+        setEditedContent('');
+      }
+    } catch (error) {
+      console.error('Error updating note:', error);
+    }
+  };
+
+  const handleDeleteClick = async (index: number) => {
+    try {
+
+      const indexTotal = (currentPage - 1) * 10 + index;
+      
+      await axios.delete(`${NOTES_URL}/${indexTotal}`);
+      
+      fetchNotesForPage(currentPage);
+      
+    } catch (error) {
+      console.error('Error deleting note:', error);
+    }
+  };
+
+  const handleAddNote = () => {
+    setAddPress(true);
+  };
+
+  const handleAddContentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setAddContent(event.target.value);
+  };
+
+  const handleCancelAdd = () => {
+    setAddPress(false);
+    setAddContent('');
+  };
+
+  const handleAdd = async () => {
+    try {
+      const newNote = {
+        "number": totalNotes,
+        "title": "Note " + totalNotes,
+        "author": {
+          "name": "",
+          "email": ""
+        },
+        "content": addContent
+      };
+
+      const response = await axios.post(`${NOTES_URL}/`, newNote);
+      
+        
+        //setCurrentNotes(updatedNotes);
+        setAddContent('');
+        setAddPress(false);
+        fetchNotesForPage(currentPage);
+
+      
+    } catch (error) {
+      console.error('Error add note:', error);
+    }
+  };
+
   return (
-    <div className='app'>
+    <div className={darkMode ? "dark" : "light"}>
+      <button name='change_theme' onClick={toggleDarkMode}>toggle to {darkMode ? "light" : "dark"}</button>
+      <button name='add_new_note' onClick={handleAddNote}>Add note</button>
+      
+      {addpress ? (
+                <div className="add-form">
+                  <textarea name='text_input_new_note' value={addContent} onChange={handleAddContentChange} />
+                  <div>
+                    <button name='text_input_save_new_note' onClick={handleAdd}>Save</button>
+                    <button name='text_input_cancel_new_note' onClick={handleCancelAdd}>Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <>  
+                  {null}
+                </>
+              )}
+
       <div className="pagination">
         <NavigationButton value='first' disable={currentPage === 1} onNavigationClick={handleFirstClick} />
         <NavigationButton value='previous' disable={currentPage === 1} onNavigationClick={handlePreviousClick} />
@@ -151,16 +282,32 @@ const Myapp: React.FC = () => {
       </div>
       <div className='text'>
         {currentNotes.length > 0 ? (
-          currentNotes.map(note => (
-            <div className='note' key={note.id} id ={`${note.id}`}>
+          currentNotes.map((note , index) => (
+            <div className='note' key={index} id={`${note.id}`}>
               <h1>{note.title}</h1>
               <p><strong>Author:</strong> {note.author.name} ({note.author.email})</p>
-              <p>{note.content}</p>
+              {editNoteIndex === index ? (
+                <div className="edit-form">
+                  <textarea name={'text_input-' + note.id} value={editedContent} onChange={handleEditContentChange} />
+                  <div>
+                    <button name={'text_input_save-' + note.id} onClick={handleSaveEdit}>Save</button>
+                    <button name={'text_input_cancel-' + note.id} onClick={handleCancelEdit}>Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  
+                  <p>{note.content}</p>
+                  <button name={'edit-' + note.id} onClick={() => handleEditClick(index, note.content)}>Edit</button>
+                  <button name={'delete-' + note.id} onClick={() => handleDeleteClick(index)}>Delete</button>
+                </>
+              )}
             </div>
           ))
         ) : (
           <h1>{null}</h1>
         )}
+       
       </div>
     </div>
   );
