@@ -28,18 +28,15 @@ const Myapp: React.FC = () => {
   const [currentNotes, setCurrentNotes] = useState<Note[]>([]);
   const [totalNotes, setTotalNotes] = useState<number>(3);
 
-  const [darkMode, setDarkMode] = useState<boolean>(false); // State for dark mode
+  const [darkMode, setDarkMode] = useState<boolean>(false);
 
-  const [editNoteIndex, setEditNoteIndex] = useState<number>(-1); // State to track which note is being edited
-  const [editedContent, setEditedContent] = useState<string>(''); // State to hold edited content
+  const [editNoteIndex, setEditNoteIndex] = useState<number>(-1);
+  const [editedContent, setEditedContent] = useState<string>('');
 
   const [addContent, setAddContent] = useState<string>('');
   const [addpress, setAddPress] = useState<boolean>(false);
 
-
   useEffect(() => {
-    
-
     fetchNotesForPage(currentPage);
   }, [currentPage]);
 
@@ -63,7 +60,7 @@ const Myapp: React.FC = () => {
         numOfPages = Math.ceil(totalNotesCount / POSTS_PER_PAGE);
         if(numOfPages < currentPage){
           handleButtonClick(numOfPages - 1);
-         }
+        }
         else{
          handleButtonClick(currentPage - 1);
         }
@@ -74,8 +71,6 @@ const Myapp: React.FC = () => {
     }
   };
 
-  
-  // hanle click on page button and update the relevant states
   const handleButtonClick = (index: number) => {
     if (numOfPages > 5) {
       const tempArray = new Array<boolean>(numOfPages).fill(false);
@@ -137,7 +132,6 @@ const Myapp: React.FC = () => {
     setCurrentPage(numOfPages);
   };
 
-  // Toggle dark mode
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
@@ -163,11 +157,8 @@ const Myapp: React.FC = () => {
       };
 
       const indexTotal = (currentPage - 1) * 10 + editNoteIndex
-
       const response = await axios.put(`${NOTES_URL}/${indexTotal}`, updatedNote);
-      // Assuming backend returns the updated note
       if (response.data) {
-        // Update currentNotes with the updated note
         const updatedNotes = currentNotes.map((note,index) => {
           if (index === editNoteIndex) {
             return {
@@ -188,13 +179,9 @@ const Myapp: React.FC = () => {
 
   const handleDeleteClick = async (index: number) => {
     try {
-
       const indexTotal = (currentPage - 1) * 10 + index;
-      
       await axios.delete(`${NOTES_URL}/${indexTotal}`);
-      
-      fetchNotesForPage(currentPage);
-      
+      fetchNotesForPage(currentPage);  
     } catch (error) {
       console.error('Error deleting note:', error);
     }
@@ -226,16 +213,13 @@ const Myapp: React.FC = () => {
       };
 
       const response = await axios.post(`${NOTES_URL}/`, newNote);
-      
-        
-        //setCurrentNotes(updatedNotes);
-        setAddContent('');
-        setAddPress(false);
-        fetchNotesForPage(currentPage);
 
-      
+      setAddContent('');
+      setAddPress(false);
+      fetchNotesForPage(currentPage);
+
     } catch (error) {
-      console.error('Error add note:', error);
+        console.error('Error add note:', error);
     }
   };
 
@@ -251,8 +235,8 @@ const Myapp: React.FC = () => {
                     <button name='text_input_save_new_note' onClick={handleAdd}>Save</button>
                     <button name='text_input_cancel_new_note' onClick={handleCancelAdd}>Cancel</button>
                   </div>
-                </div>
-              ) : (
+                </div>) : 
+                (
                 <>  
                   {null}
                 </>
@@ -293,21 +277,19 @@ const Myapp: React.FC = () => {
                     <button name={'text_input_save-' + note.id} onClick={handleSaveEdit}>Save</button>
                     <button name={'text_input_cancel-' + note.id} onClick={handleCancelEdit}>Cancel</button>
                   </div>
-                </div>
-              ) : (
+                </div>) : 
+                (
                 <>
-                  
                   <p>{note.content}</p>
                   <button name={'edit-' + note.id} onClick={() => handleEditClick(index, note.content)}>Edit</button>
                   <button name={'delete-' + note.id} onClick={() => handleDeleteClick(index)}>Delete</button>
                 </>
               )}
             </div>
-          ))
-        ) : (
+          ))) : 
+          (
           <h1>{null}</h1>
         )}
-       
       </div>
     </div>
   );
