@@ -51,34 +51,35 @@ app.post('/', (request, response) => {
 
   // Get specific note
   app.get('/:index', async (request, response) => {
-    const noteIndex = request.params.index
-    Note.find()
-    .then(notes => {
-      const noteToGet = notes[noteIndex - 1];
-      response.status(200).json(noteToGet)
-    })
-    .catch(error => {
-      console.log(error)
-      response.status(400).send({error: 'malformatted id'})
-    })
+    const noteIndex = parseInt(request.params.index, 10);
+    try {
+        const notes = await Note.find().exec();
+        if (noteIndex < 0 || noteIndex >= notes.length) {
+            return response.status(404).json({ error: 'Note not found' });
+        }
+        const noteToGet = notes[noteIndex];
+        response.status(200).json(noteToGet);
+    } catch (error) {
+        console.log(error);
+        response.status(500).json({ error: 'Internal server error' });
+    }
   });
 
   // Delete specific note
-  app.delete('/:index', (request, response) => {
-    const noteIndex = request.params.index
-
-    Note.find()
-    .then(notes => {
-      const noteToDelete = notes[noteIndex];
-      return Note.deleteOne({ _id: noteToDelete._id });
-    })
-    .then(result => {
-      response.status(204).end()
-    })
-    .catch(error => {
-      console.log(error)
-      response.status(500).json({ error: error.message });
-    })
+  app.delete('/:index', async (request, response) => {
+    const noteIndex = parseInt(request.params.index, 10);
+    try {
+        const notes = await Note.find().exec();
+        if (noteIndex < 0 || noteIndex >= notes.length) {
+            return response.status(404).json({ error: 'Note not found' });
+        }
+        const noteToDelete = notes[noteIndex];
+        await Note.deleteOne({ _id: noteToDelete._id });
+        response.status(204).end();
+    } catch (error) {
+        console.log(error);
+        response.status(500).json({ error: 'Internal server error' });
+    }
   });
   
   // Update note
