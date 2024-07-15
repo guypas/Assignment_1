@@ -65,7 +65,7 @@ app.post('/', (request, response) => {
     }
   });
 
-  // Delete specific note
+  // Delete specific note.
   app.delete('/:index', async (request, response) => {
     const noteIndex = parseInt(request.params.index, 10);
     try {
