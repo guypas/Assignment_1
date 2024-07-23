@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PageButton from './pageButton';
 import NavigationButton from './navigationButton';
+import '../app/globals.css';
+
 
 let numOfPages: number = 1; 
 const POSTS_PER_PAGE: number = 10;
@@ -22,11 +24,15 @@ interface Note {
   content: string;
 }
 
-const Myapp: React.FC = () => {
+interface MyProps {
+  firstPage: Note[];
+}
+
+const Myapp: React.FC<MyProps> = ({ firstPage }) => {
   
   const [buttonsArray, setButtonsArray] = useState<boolean[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [currentNotes, setCurrentNotes] = useState<Note[]>([]);
+  const [currentNotes, setCurrentNotes] = useState<Note[]>(firstPage || []);
   const [totalNotes, setTotalNotes] = useState<number>(3);
 
   const [darkMode, setDarkMode] = useState<boolean>(false);
@@ -326,7 +332,9 @@ const Myapp: React.FC = () => {
   return (
     <div className={darkMode ? "dark" : "light"}>
       <button name='change_theme' onClick={toggleDarkMode}>toggle to {darkMode ? "light" : "dark"}</button>
-      <button name='add_new_note' onClick={handleAddNote}>Add note</button>
+      {loggedInUserName !== '' ? (
+        <button name='add_new_note' onClick={handleAddNote}>Add note</button>
+      ) : null}
       <button name="logout" onClick={handleLogOut}> Logout </button>
       <br/>
       <br/>
@@ -367,32 +375,33 @@ const Myapp: React.FC = () => {
         </form>
       </div>
 
-      <div className="login_form">
-        <form onSubmit={handleUserLogin}>
-        <h3> Login </h3>
-        <br/>
-          <label>
-            Username:
-            <br/>
-            <input type="text" value={loginUsername} name="login_form_username" onChange={handleUsernameLoginChange}/>
-            <br/>
-          </label>
+      {loggedInUserName === '' ? (
+        <div className="login_form">
+          <form onSubmit={handleUserLogin}>
+          <h3> Login </h3>
           <br/>
-          <label>
-            Password:
-            <br/> 
-            <input type="text" value={loginPassword} name="login_form_password" onChange={handlePasswordLoginChange}/>
+            <label>
+              Username:
+              <br/>
+              <input type="text" value={loginUsername} name="login_form_username" onChange={handleUsernameLoginChange}/>
+              <br/>
+            </label>
             <br/>
-          </label>
-          <br/>
-          <button name="login_form_login"> Login </button>
-        </form>
-      </div>
+            <label>
+              Password:
+              <br/> 
+              <input type="text" value={loginPassword} name="login_form_password" onChange={handlePasswordLoginChange}/>
+              <br/>
+            </label>
+            <br/>
+            <button name="login_form_login"> Login </button>
+          </form>
+        </div>
+      ) : null}
       
       
       {addpress ? (
                 <div className="add-form">
-                  <h4> Add new note </h4>
                   <br/>
                   <label>
                     <textarea name='text_input_new_note' value={addContent} onChange={handleAddContentChange} />
