@@ -5,7 +5,7 @@ import axios from 'axios';
 import PageButton from './pageButton';
 import NavigationButton from './navigationButton';
 
-let numOfPages: number = 0; 
+let numOfPages: number = 1; 
 const POSTS_PER_PAGE: number = 10;
 const NOTES_URL = 'http://localhost:3001/notes';
 const USERS_URL = 'http://localhost:3001/users';
@@ -46,6 +46,9 @@ const Myapp: React.FC = () => {
   const [loginPassword, setLoginPassword ] = useState('');
 
   const [token, setToken] = useState('');
+  const [loggedInUserName, setLoggedInUserName] = useState('');
+
+  console.log("render");
 
   useEffect(() => {
     fetchNotesForPage(currentPage);
@@ -301,8 +304,10 @@ const Myapp: React.FC = () => {
 
       const response = await axios.post(`${USERS_URL}/login`, loginUser);
       const token1 = response.data.token;
+      const loggedInName = response.data.name;
 
       setToken(token1);
+      setLoggedInUserName(loggedInName);
       setLoginUsername('');
       setLoginPassword('');
 
@@ -311,11 +316,18 @@ const Myapp: React.FC = () => {
     }
   };
 
+  const handleLogOut =  () => {
+    setToken('');
+    setLoggedInUserName('');
+  };
+
+
+
   return (
     <div className={darkMode ? "dark" : "light"}>
       <button name='change_theme' onClick={toggleDarkMode}>toggle to {darkMode ? "light" : "dark"}</button>
       <button name='add_new_note' onClick={handleAddNote}>Add note</button>
-      <button name="logout" onClick={()=> setToken('')}> Logout </button>
+      <button name="logout" onClick={handleLogOut}> Logout </button>
       <br/>
       <br/>
       
@@ -431,8 +443,12 @@ const Myapp: React.FC = () => {
                 (
                 <>
                   <p>{note.content}</p>
+                  {note.author.name === loggedInUserName ? (
+                    <>
                   <button name={'edit-' + note.id} onClick={() => handleEditClick(index, note.content)}>Edit</button>
                   <button name={'delete-' + note.id} onClick={() => handleDeleteClick(index)}>Delete</button>
+                  </>
+                  ) : null}
                 </>
               )}
             </div>

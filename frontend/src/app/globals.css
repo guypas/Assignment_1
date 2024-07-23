@@ -70,11 +70,11 @@
   color: white;
 }
 
-.create_user_form {
+/* .create_user_form {
   display: flex;
   justify-content: flex-end;
   align-items: left;
-  gap: 20px; /* Adjust the gap between the forms as needed */
+  gap: 20px; 
   position: absolute;
   top: 20;
   right: 0;
@@ -84,13 +84,13 @@
   border-radius: 10px;
   width: 180px;
   height: auto;
-}
+} */
 
-.login_form{
+/* .login_form{
   display: flex;
   justify-content: flex-end;
   align-items: left;
-  gap: 20px; /* Adjust the gap between the forms as needed */
+  gap: 20px; 
   position: absolute;
   top: 30;
   right: 30;
@@ -100,7 +100,7 @@
   border-radius: 10px;
   width: 160px;
   height: auto;
-}
+} */
 
 .input{
   align-items: center;
