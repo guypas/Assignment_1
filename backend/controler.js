@@ -21,7 +21,7 @@ app.post('/', async (request, response) => {
         return response.status(400).json({ error: 'Content missing, can\'t add note' });
     }
     if(!token)
-        return response.status(400).json({ error: 'Token invalid' });
+        return response.status(401).json({ error: 'Token invalid' });
 
     const decoded = jwt.verify(token, process.env.SECRET);
 
@@ -87,7 +87,7 @@ app.post('/', async (request, response) => {
     const token = getTokenFrom(request)
 
     if(!token)
-      return response.status(400).json({ error: 'Token invalid' });
+      return response.status(401).json({ error: 'Token invalid' });
 
     const decoded = jwt.verify(token, process.env.SECRET);
     const user = await User.findById(decoded.id);
@@ -118,7 +118,7 @@ app.post('/', async (request, response) => {
     const token = getTokenFrom(request)
 
     if(!token)
-      return response.status(400).json({ error: 'Token invalid' });
+      return response.status(401).json({ error: 'Token invalid' });
 
     const decoded = jwt.verify(token, process.env.SECRET);
     const user = await User.findById(decoded.id);
