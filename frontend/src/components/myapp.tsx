@@ -26,9 +26,10 @@ interface Note {
 
 interface MyProps {
   firstPage: Note[];
+  totalNotesCount: number;
 }
 
-const Myapp: React.FC<MyProps> = ({ firstPage }) => {
+const Myapp: React.FC<MyProps> = ({ firstPage, totalNotesCount }) => {
   
   const [buttonsArray, setButtonsArray] = useState<boolean[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -43,21 +44,40 @@ const Myapp: React.FC<MyProps> = ({ firstPage }) => {
   const [addContent, setAddContent] = useState<string>('');
   const [addpress, setAddPress] = useState<boolean>(false);
 
-  const [name, setName ] = useState('');
-  const [email, setEmail ] = useState('');
-  const [username, setUsername ] = useState('');
-  const [password, setPassword ] = useState('');
+  const [name, setName ] = useState<string>('');
+  const [email, setEmail ] = useState<string>('');
+  const [username, setUsername ] = useState<string>('');
+  const [password, setPassword ] = useState<string>('');
 
-  const [loginUsername, setLoginUsername ] = useState('');
-  const [loginPassword, setLoginPassword ] = useState('');
+  const [loginUsername, setLoginUsername ] = useState<string>('');
+  const [loginPassword, setLoginPassword ] = useState<string>('');
 
-  const [token, setToken] = useState('');
-  const [loggedInUserName, setLoggedInUserName] = useState('');
+  const [token, setToken] = useState<string>('');
+  const [loggedInUserName, setLoggedInUserName] = useState<string>('');
+
+  const [cache, setCache] = useState<{ [Key: number] : Note[] }>({ 1:firstPage });
 
   console.log("render");
 
   useEffect(() => {
-    fetchNotesForPage(currentPage);
+    if(cache[currentPage])
+    {
+      setCurrentNotes(cache[currentPage]);
+      if(totalNotesCount != totalNotes){
+        numOfPages = Math.ceil(totalNotesCount / POSTS_PER_PAGE);
+        if(numOfPages < currentPage){
+          handleButtonClick(numOfPages - 1);
+        }
+        else{
+         handleButtonClick(currentPage - 1);
+        }
+        setTotalNotes(totalNotesCount);
+      }
+    }
+    else{
+      fetchNotesForPage(currentPage);
+    }
+    updateCache(currentPage);
   }, [currentPage]);
 
   const fetchNotesForPage = async (page: number) => {
@@ -85,10 +105,55 @@ const Myapp: React.FC<MyProps> = ({ firstPage }) => {
         }
         setTotalNotes(totalNotesCount);
       }
+
+    setCache((prevCache) => ({ ...prevCache, [page]: notes}));
+
     } catch (error) {
       console.error('Error fetching notes:', error);
     }
   };
+
+  const updateCache = async (currentPage: number) => {
+    const cacheArray: { [Key: number] : Note[] } = {};
+    let startPage;
+    let endPage;
+    if(currentPage === 1 || currentPage === 2){
+      startPage = 1;
+      endPage = Math.min(5, numOfPages);
+    }
+    else if(currentPage === numOfPages){
+      startPage = Math.max(1, currentPage-4);
+      endPage = numOfPages;
+    }
+    else if(currentPage === numOfPages-1){
+      startPage = Math.max(1, currentPage-3);
+      endPage = numOfPages;
+    }
+    else{
+      startPage = (currentPage - 2 > 0) ? (currentPage - 2) : 1;
+      endPage = (currentPage + 2 < numOfPages) ? (currentPage + 2) : numOfPages;
+    }
+    for(let i = startPage; i <= endPage; i++){
+      if(cache[i])
+        cacheArray[i] = cache[i];
+      else{
+        try{
+          const res = await axios.get(NOTES_URL, {
+            params: {
+              _page: [i],
+              _limit: POSTS_PER_PAGE
+            }
+          });
+
+          cacheArray[i] = res.data.notes;
+
+        } catch (error) {
+          console.error('Error updating cache:', error);
+        }
+      }
+    }
+    setCache(cacheArray);
+  }
 
   const handleButtonClick = (index: number) => {
     if (numOfPages > 5) {
@@ -335,7 +400,10 @@ const Myapp: React.FC<MyProps> = ({ firstPage }) => {
       {loggedInUserName !== '' ? (
         <button name='add_new_note' onClick={handleAddNote}>Add note</button>
       ) : null}
-      <button name="logout" onClick={handleLogOut}> Logout </button>
+
+      {loggedInUserName !== '' ? (
+        <button name="logout" onClick={handleLogOut}> Logout </button>
+      ) : null}
       <br/>
       <br/>
       

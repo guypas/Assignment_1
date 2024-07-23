@@ -9,11 +9,13 @@ export async function getStaticProps() {
                 _limit: 10
             },
         });
-        const firstPage = res.data.notes;
+        const firstPage = res.data.notes || [];
+        const totalNotesCount = res.data.totalNotesCount || 0;
        
         return {
           props: {
             firstPage,
+            totalNotesCount,
           },
         }
     } catch (error) {
@@ -22,14 +24,15 @@ export async function getStaticProps() {
         return {
             props: {
               firstPage:[],
+              totalNotesCount:0,
             },
           }
     }
   }
 
 
-export default function Index({ firstPage }) {
+export default function Index({ firstPage, totalNotesCount }) {
   return (
-    <Myapp firstPage={firstPage}/>
+    <Myapp firstPage={firstPage} totalNotesCount={totalNotesCount}/>
   );
 }
