@@ -37,8 +37,8 @@ const Myapp: React.FC = () => {
   const [addContent, setAddContent] = useState<string>('');
   const [addpress, setAddPress] = useState<boolean>(false);
 
-  const [ name, setName ] = useState('');
-  const [ email, setEmail ] = useState('');
+  const [name, setName ] = useState('');
+  const [email, setEmail ] = useState('');
   const [username, setUsername ] = useState('');
   const [password, setPassword ] = useState('');
 
@@ -392,11 +392,15 @@ const Myapp: React.FC = () => {
       
       {addpress ? (
                 <div className="add-form">
-                  <textarea name='text_input_new_note' value={addContent} onChange={handleAddContentChange} />
-                  <div>
-                    <button name='text_input_save_new_note' onClick={handleAdd}>Save</button>
-                    <button name='text_input_cancel_new_note' onClick={handleCancelAdd}>Cancel</button>
-                  </div>
+                  <h4> Add new note </h4>
+                  <br/>
+                  <label>
+                    <textarea name='text_input_new_note' value={addContent} onChange={handleAddContentChange} />
+                    <div>
+                      <button name='text_input_save_new_note' onClick={handleAdd}>Save</button>
+                      <button name='text_input_cancel_new_note' onClick={handleCancelAdd}>Cancel</button>
+                    </div>
+                  </label>
                 </div>) : 
                 (
                 <>  
