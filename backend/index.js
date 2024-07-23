@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const express = require('express')
 const controller = require('./controler');
+const usersController = require('./userControler');
 const logger = require('./logger');
 const cors = require('cors');
 require('dotenv').config()
@@ -11,6 +12,7 @@ app.use(cors());
 app.use(express.json());
 app.use(logger);
 app.use('/notes', controller);
+app.use('/users', usersController);
 
 const url = process.env.MONGODB_CONNECTION_URL;
 

@@ -8,6 +8,7 @@ import NavigationButton from './navigationButton';
 let numOfPages: number = 0; 
 const POSTS_PER_PAGE: number = 10;
 const NOTES_URL = 'http://localhost:3001/notes';
+const USERS_URL = 'http://localhost:3001/users';
 
 interface Author {
   name: string;
@@ -36,6 +37,16 @@ const Myapp: React.FC = () => {
   const [addContent, setAddContent] = useState<string>('');
   const [addpress, setAddPress] = useState<boolean>(false);
 
+  const [ name, setName ] = useState('');
+  const [ email, setEmail ] = useState('');
+  const [username, setUsername ] = useState('');
+  const [password, setPassword ] = useState('');
+
+  const [loginUsername, setLoginUsername ] = useState('');
+  const [loginPassword, setLoginPassword ] = useState('');
+
+  const [token, setToken] = useState('');
+
   useEffect(() => {
     fetchNotesForPage(currentPage);
   }, [currentPage]);
@@ -53,7 +64,6 @@ const Myapp: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const { notes, totalNotesCount } = response.data;
-      console.log("total notes count:" , totalNotesCount)
 
       setCurrentNotes(notes);
       if(totalNotesCount != totalNotes){
@@ -157,7 +167,11 @@ const Myapp: React.FC = () => {
       };
 
       const indexTotal = (currentPage - 1) * 10 + editNoteIndex
-      const response = await axios.put(`${NOTES_URL}/${indexTotal}`, updatedNote);
+      const response = await axios.put(`${NOTES_URL}/${indexTotal}`, updatedNote, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       if (response.data) {
         const updatedNotes = currentNotes.map((note,index) => {
           if (index === editNoteIndex) {
@@ -180,7 +194,11 @@ const Myapp: React.FC = () => {
   const handleDeleteClick = async (index: number) => {
     try {
       const indexTotal = (currentPage - 1) * 10 + index;
-      await axios.delete(`${NOTES_URL}/${indexTotal}`);
+      await axios.delete(`${NOTES_URL}/${indexTotal}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       fetchNotesForPage(currentPage);  
     } catch (error) {
       console.error('Error deleting note:', error);
@@ -212,7 +230,11 @@ const Myapp: React.FC = () => {
         "content": addContent
       };
 
-      const response = await axios.post(`${NOTES_URL}/`, newNote);
+      const response = await axios.post(`${NOTES_URL}/`, newNote, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
       setAddContent('');
       setAddPress(false);
@@ -223,10 +245,138 @@ const Myapp: React.FC = () => {
     }
   };
 
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value)
+  };
+
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value)
+  };
+
+  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(event.target.value)
+  };
+
+  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value)
+  };
+
+  const handleCreateUser = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      const newUser = {
+        "name": name,
+        "email": email,
+        "username": username,
+        "password": password,
+      };
+
+      const response = await axios.post(`${USERS_URL}/`, newUser);
+
+      setName('');
+      setEmail('');
+      setUsername('');
+      setPassword('');
+
+    } catch (error) {
+        console.error('Error adding new user:', error);
+    }
+  };
+
+  const handleUsernameLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginUsername(event.target.value)
+  };
+
+  const handlePasswordLoginChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginPassword(event.target.value)
+  };
+
+  const handleUserLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      const loginUser = {
+        "username": loginUsername,
+        "password": loginPassword,
+      };
+
+      const response = await axios.post(`${USERS_URL}/login`, loginUser);
+      const token1 = response.data.token;
+
+      setToken(token1);
+      setLoginUsername('');
+      setLoginPassword('');
+
+    } catch (error) {
+        console.error('Error logging in', error);
+    }
+  };
+
   return (
     <div className={darkMode ? "dark" : "light"}>
       <button name='change_theme' onClick={toggleDarkMode}>toggle to {darkMode ? "light" : "dark"}</button>
       <button name='add_new_note' onClick={handleAddNote}>Add note</button>
+      <button name="logout" onClick={()=> setToken('')}> Logout </button>
+      <br/>
+      <br/>
+      
+      <div className="create_user_form">
+        <form onSubmit={handleCreateUser}>
+        <h3> Create New User </h3>
+        <br/>
+          <label>
+            Name:
+            <br/>
+            <input type="text" value={name} name="create_user_form_name" onChange={handleNameChange}/>
+            <br/>
+          </label>
+          <br/>
+          <label>
+            Email:
+            <br/>
+            <input type="email" value={email} name="create_user_form_email" onChange={handleEmailChange}/>
+            <br/>
+          </label>
+          <br/>
+          <label>
+            Username:
+            <br/>
+            <input type="text" value={username} name="create_user_form_username" onChange={handleUsernameChange}/>
+            <br/>
+          </label>
+          <br/>
+          <label>
+            Password:
+            <br/> 
+            <input type="text" value={password} name="create_user_form_password" onChange={handlePasswordChange}/>
+            <br/>
+          </label>
+          <br/>
+          <button name="create_user_form_create_user"> Create User </button>
+        </form>
+      </div>
+
+      <div className="login_form">
+        <form onSubmit={handleUserLogin}>
+        <h3> Login </h3>
+        <br/>
+          <label>
+            Username:
+            <br/>
+            <input type="text" value={loginUsername} name="login_form_username" onChange={handleUsernameLoginChange}/>
+            <br/>
+          </label>
+          <br/>
+          <label>
+            Password:
+            <br/> 
+            <input type="text" value={loginPassword} name="login_form_password" onChange={handlePasswordLoginChange}/>
+            <br/>
+          </label>
+          <br/>
+          <button name="login_form_login"> Login </button>
+        </form>
+      </div>
+      
       
       {addpress ? (
                 <div className="add-form">

@@ -1,23 +1,39 @@
 const express = require('express');
 const Note = require('./schema');
+const jwt = require('jsonwebtoken');
+const User = require('./schemaUser');
 
 const app = express.Router()
 
+const getTokenFrom = request => {
+  const authorization = request.get('authorization');
+  if(authorization && authorization.startsWith('Bearer '))
+    return authorization.replace('Bearer ', '');
+  return null;
+}
+
 // Add new note
-app.post('/', (request, response) => {
+app.post('/', async (request, response) => {
     const body = request.body
+    const token = getTokenFrom(request)
 
     if (!body.content) {
         return response.status(400).json({ error: 'Content missing, can\'t add note' });
     }
+    if(!token)
+        return response.status(400).json({ error: 'Token invalid' });
+
+    const decoded = jwt.verify(token, process.env.SECRET);
+
+    const user = await User.findById(decoded.id);
     
     const note = new Note({
         id: body.number,
         title: body.title,
         author: {
-        name: body.author.name,
-        email: body.author.email
-        } || null,
+        name: user.name,
+        email: user.email
+        },
         content: body.content,
     })
   
@@ -68,12 +84,25 @@ app.post('/', (request, response) => {
   // Delete specific note.
   app.delete('/:index', async (request, response) => {
     const noteIndex = parseInt(request.params.index, 10);
+    const token = getTokenFrom(request)
+
+    if(!token)
+      return response.status(400).json({ error: 'Token invalid' });
+
+    const decoded = jwt.verify(token, process.env.SECRET);
+    const user = await User.findById(decoded.id);
+
     try {
         const notes = await Note.find().exec();
         if (noteIndex < 0 || noteIndex >= notes.length) {
             return response.status(404).json({ error: 'Note not found' });
         }
         const noteToDelete = notes[noteIndex];
+
+        if (user.name !== noteToDelete.author.name) {
+          return res.status(403).json({ error: 'You aren\'t authorized to delete this note' });
+        }
+
         await Note.deleteOne({ _id: noteToDelete._id });
         response.status(204).end();
     } catch (error) {
@@ -83,9 +112,16 @@ app.post('/', (request, response) => {
   });
   
   // Update note
-  app.put('/:index', (request, response) => {
+  app.put('/:index', async (request, response) => {
     const noteIndex = request.params.index
     const body = request.body
+    const token = getTokenFrom(request)
+
+    if(!token)
+      return response.status(400).json({ error: 'Token invalid' });
+
+    const decoded = jwt.verify(token, process.env.SECRET);
+    const user = await User.findById(decoded.id);
   
     const note = {
       content: body.content,
@@ -94,6 +130,11 @@ app.post('/', (request, response) => {
     Note.find()
     .then(notes => {
       const noteToEdit = notes[noteIndex];
+
+      if (user.name !== noteToEdit.author.name) {
+        return res.status(403).json({ error: 'You aren\'t authorized to edit this note' });
+      }
+
       return Note.findOneAndUpdate({ _id: noteToEdit._id } , note, { new: true });
     })
     .then(updatedNote => {
