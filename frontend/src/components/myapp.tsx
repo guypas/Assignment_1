@@ -393,7 +393,6 @@ const Myapp: React.FC<MyProps> = ({ firstPage, totalNotesCount }) => {
   };
 
 
-
   return (
     <div className={darkMode ? "dark" : "light"}>
       <button name='change_theme' onClick={toggleDarkMode}>toggle to {darkMode ? "light" : "dark"}</button>
@@ -466,8 +465,7 @@ const Myapp: React.FC<MyProps> = ({ firstPage, totalNotesCount }) => {
           </form>
         </div>
       ) : null}
-      
-      
+        
       {addpress ? (
                 <div className="add-form">
                   <h3> Add new note </h3>
