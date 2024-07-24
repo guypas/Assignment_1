@@ -407,8 +407,8 @@ const Myapp: React.FC<MyProps> = ({ firstPage, totalNotesCount }) => {
       <br/>
       <br/>
       
-      <div className="create_user_form">
-        <form onSubmit={handleCreateUser}>
+      <div>
+        <form className="create_user_form" onSubmit={handleCreateUser}>
         <h3> Create New User </h3>
         <br/>
           <label>
@@ -444,8 +444,8 @@ const Myapp: React.FC<MyProps> = ({ firstPage, totalNotesCount }) => {
       </div>
 
       {loggedInUserName === '' ? (
-        <div className="login_form">
-          <form onSubmit={handleUserLogin}>
+        <div>
+          <form className="login_form" onSubmit={handleUserLogin}>
           <h3> Login </h3>
           <br/>
             <label>
@@ -470,6 +470,7 @@ const Myapp: React.FC<MyProps> = ({ firstPage, totalNotesCount }) => {
       
       {addpress ? (
                 <div className="add-form">
+                  <h3> Add new note </h3>
                   <br/>
                   <label>
                     <textarea name='text_input_new_note' value={addContent} onChange={handleAddContentChange} />

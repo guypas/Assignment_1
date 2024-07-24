@@ -51,7 +51,7 @@
 }
 
 .dark {
-  background-color: black;
+  background-color: rgb(41, 38, 38);
   color: white;
 }
 
@@ -66,40 +66,57 @@
 }
 
 .dark .note {
-  background-color: black;
+  background-color: rgb(41, 38, 38);
   color: white;
 }
 
 .create_user_form {
   display: flex;
-  justify-content: flex-end;
-  align-items: left;
-  gap: 20px; 
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
   position: absolute;
-  top: 20;
-  right: 0;
+  top: 20px;
+  left: 855px;
   border: 1px solid #ccc;
-  padding: 10px;
+  padding: 8px;
   background-color: #f9f9f9;
   border-radius: 10px;
-  width: 180px;
-  height: auto;
-} 
+  width: 170px;
+  height: 380px;
+}
 
-.login_form{
-  display: flex;
-  justify-content: flex-end;
-  align-items: left;
-  gap: 20px; 
-  position: absolute;
-  top: 30;
-  right: 30;
+.create_user_form input {
+  width: 100%;
+  padding: 8px;
   border: 1px solid #ccc;
-  padding: 10px;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.login_form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0px;
+  position: absolute;
+  top: 40px;
+  right: 30px;
+  left: 5px;
+  border: 1px solid #ccc;
+  padding: 8px;
   background-color: #f9f9f9;
   border-radius: 10px;
   width: 160px;
-  height: auto;
+  height: 240px;
+}
+
+.login_form input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
 }
 
 .input{
@@ -107,20 +124,21 @@
 }
 
 .dark .login_form {
-  background-color: black;
+  background-color: rgb(49, 46, 46);
   color: white;
 }
 
 .dark .create_user_form {
-  background-color: black;
+  background-color: rgb(49, 46, 46);
   color: white;
 }
 
 .add-form{
   display: flex;
+  flex-direction: column;
   justify-content: flex-end;
   align-items: left;
-  gap: 20px; 
+  gap: 0px; 
   position: absolute;
   top: 30;
   right: 30;
@@ -132,7 +150,13 @@
   height: auto;
 }
 
+.add-form h3 {
+  margin: 0 0px 0; /* Margin around the heading */
+  font-size: 18px; /* Adjust font size as needed */
+}
+
+
 .dark .add-form {
-  background-color: black;
+  background-color: rgb(41, 38, 38);
   color: white;
 }
