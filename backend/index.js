@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 app.use(logger);
 app.use('/notes', controller);
-app.use('/users', usersController);
+app.use('/', usersController);
 
 const url = process.env.MONGODB_CONNECTION_URL;
 

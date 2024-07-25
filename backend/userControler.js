@@ -7,7 +7,7 @@ require('dotenv').config();
 const app = express.Router();
 
 // Add new user
-app.post('/', async (request, response) => {
+app.post('/users', async (request, response) => {
     const body = request.body
 
     if (!body.name || !body.email || !body.username || !body.password) {
@@ -35,8 +35,7 @@ app.post('/', async (request, response) => {
 
 //Login
 app.post('/login', async (request, response) => {
-    const body = request.body
-
+    const body = request.body;
     if (!body.username || !body.password) {
         return response.status(400).json({ error: 'Must fill all fields' });
     }

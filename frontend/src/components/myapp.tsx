@@ -11,6 +11,7 @@ let numOfPages: number = 1;
 const POSTS_PER_PAGE: number = 10;
 const NOTES_URL = 'http://localhost:3001/notes';
 const USERS_URL = 'http://localhost:3001/users';
+const LOGIN_URL = 'http://localhost:3001/login';
 
 interface Author {
   name: string;
@@ -345,7 +346,7 @@ const Myapp: React.FC<MyProps> = ({ firstPage, totalNotesCount }) => {
         "password": password,
       };
 
-      const response = await axios.post(`${USERS_URL}/`, newUser);
+      const response = await axios.post(`${USERS_URL}`, newUser);
 
       setName('');
       setEmail('');
@@ -367,13 +368,14 @@ const Myapp: React.FC<MyProps> = ({ firstPage, totalNotesCount }) => {
 
   const handleUserLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     try {
       const loginUser = {
         "username": loginUsername,
         "password": loginPassword,
       };
 
-      const response = await axios.post(`${USERS_URL}/login`, loginUser);
+      const response = await axios.post(`${LOGIN_URL}`, loginUser);
       const token1 = response.data.token;
       const loggedInName = response.data.name;
 
