@@ -14,23 +14,24 @@ app.post('/users', async (request, response) => {
         return response.status(400).json({ error: 'Must fill all fields' });
     }
 
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(body.password, saltRounds);
-    
-    const user = new User({
-        name: body.name,
-        email: body.email,
-        username: body.username,
-        passwordHash: passwordHash,
-    })
-  
-    user.save().then(savedUser => {
-      response.status(201).json({ success: 'New user Saved!' });
-    })
-    .catch(error => {
-      response.status(500).json({ error: 'Error saving user' });
-    });
-  })
+    try {
+        const saltRounds = 10;
+        const passwordHash = await bcrypt.hash(body.password, saltRounds);
+        
+        const user = new User({
+            name: body.name,
+            email: body.email,
+            username: body.username,
+            passwordHash: passwordHash,
+        });
+        
+        const savedUser = await user.save();
+        return response.status(201).json({ success: 'New user Saved!' });
+    }
+    catch(error) {
+      return response.status(500).json({ error: 'Error saving user' });
+    }
+  });
 
 
 //Login
@@ -45,7 +46,7 @@ app.post('/login', async (request, response) => {
         const user = await User.findOne({ username });
         const passwordCorrect = user === null ? false : bcrypt.compare(body.password, user.passwordHash);
         if (! (user && passwordCorrect)){
-            response.status(401).json({ error: 'Invalid username or password' });
+            return response.status(401).json({ error: 'Invalid username or password' });
         }
 
         const userForToken = {
@@ -54,11 +55,11 @@ app.post('/login', async (request, response) => {
         }
 
         const token = jwt.sign(userForToken, process.env.SECRET);
-
-        response.status(200).send({ token: token, name: user.name, email: user.email });
+        return response.status(200).send({ token: token, name: user.name, email: user.email });
+    
     } catch (error) {
-        response.status(500).json({ error: 'Error logging in' });
+        return response.status(500).json({ error: 'Error logging in' });
     }
-})
+});
 
 module.exports = app;

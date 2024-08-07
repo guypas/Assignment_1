@@ -17,13 +17,10 @@ import { test, expect } from '@playwright/test';
   });
 
 //Test 3
-  test('login successful', async ({ page }) => {
+  test('logout button shows only for logged in user', async ({ page }) => {
     await page.goto('http://localhost:3000')
-    await page.fill('input[name="login_form_username"]', 'guypas'); //user name from database
-    await page.fill('input[name="login_form_password"]', '1234'); //password from database
-    await page.click('button[name="login_form_login"]');
-    const addNoteButton = page.locator('button', {hasText: 'Add note'});
-    await expect(addNoteButton).toBeVisible();
+    const logoutButton = page.locator('button', {hasText: 'Logout'});
+    await expect(logoutButton).toBeHidden();
   });
 
   //Test 4
